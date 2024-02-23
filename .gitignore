@@ -1,5 +1,3 @@
 config/
 .env
 connection.js
-package-lock.json
-package.json

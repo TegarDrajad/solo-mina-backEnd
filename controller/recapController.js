@@ -119,6 +119,21 @@ module.exports = {
                 limit: pageSize,
                 offset: offset,
                 attributes: [`id`, `customerId`, `fishId`, `usersId`, `priceByCustomersId`, `price`, `total_product`, `total_price`, `status`, `notes`, `createdAt`, `updatedAt`],
+                include: [{
+                    model: customers,
+                    as: 'customer',
+                    attributes: ['name']
+                },
+                {
+                    model: fish,
+                    as: 'fish',
+                    attributes: ['name']
+                },
+                {
+                    model: users,
+                    as: 'users',
+                    attributes: ['full_name']
+                }],
                 order: [['createdAt', 'DESC']],
             });
 
