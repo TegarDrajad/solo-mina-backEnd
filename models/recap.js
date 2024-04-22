@@ -31,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
     total_product: DataTypes.INTEGER,
     total_price: DataTypes.INTEGER,
     status: DataTypes.ENUM('Paid', 'Unpaid', 'Halfpaid', 'Installments'),
+    remainingAmount: DataTypes.INTEGER,
     notes: DataTypes.STRING,
   }, {
     sequelize,

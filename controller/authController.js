@@ -2,6 +2,7 @@ const express = require('express');
 const response = require('../response');
 const db = require('../connection');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 require('dotenv').config();
 const signToken = id => {
   return jwt.sign({id}, process.env.JWT_SECRET, {
@@ -44,6 +45,63 @@ module.exports = {
       
     } catch (error) {
       console.log(error)      
+    }
+  },
+
+  forgotPassword: async(req, res) => {
+    try {
+      // get username and new password from request 
+      const username = req.body.username;
+      const newPassword = req.body.newPassword;
+      const repeatNewPassword = req.body.repeatNewPassword;
+
+      // cek username if not null
+      if (username !== "") {
+        const usersData = await users.findOne({
+          where: {
+            username: username
+          }
+        })
+
+        // cek usersData is not null
+        if (!usersData) {
+          return response(404, null, `Users With username '${username}' is not defind`, res);
+        }
+
+        // cek new password and repeat new password must be same 
+        if (newPassword === repeatNewPassword) {
+          // bcrypt password 
+          const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+          // create variable new password 
+          const newUsersData = {
+            username: usersData.username,
+            password: hashedPassword,
+            full_name: usersData.full_name,
+            role: usersData.role
+          }
+
+          // update data
+          await users.update(newUsersData, {
+            where: {
+              id: usersData.id
+            }
+          });
+
+          const newUsersPassword = await users.findByPk(usersData.id);
+
+          if (newUsersPassword !== "") {
+            return response(200, newUsersPassword, "Succes Update New Password", res);
+          }else{
+            return response(400, null, "Cannot update new password", res);
+          }
+        }else{
+          return response(400, null, "Password is not matched", res);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      return response(400, null, "Internal Server Error", res);
     }
   }
  

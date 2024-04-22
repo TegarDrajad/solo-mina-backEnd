@@ -65,6 +65,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.ENUM('Paid', 'Not Yet Paid', 'Not Yet Paid Off')
       },
+      remainingAmount: {
+        allowNull: true,
+        type: Sequelize.INTEGER
+      },
       notes: {
         allowNull: true,
         type: Sequelize.STRING

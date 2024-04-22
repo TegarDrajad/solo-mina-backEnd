@@ -4,6 +4,7 @@ const db = require('../connection')
 const { users } = require('../models')
 const { recap } = require('../models');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 module.exports = {
 
@@ -15,8 +16,22 @@ module.exports = {
 
             // Memeriksa kehadiran data yang dibutuhkan
             if (!username || !password || !full_name || !role) {
-                response(400, null, "Missing required data", res);
+                return response(400, null, "Missing required data", res);
             };
+
+            // Memeriksa apakah full_name mengandung angka
+            if (/\d/.test(full_name)) {
+                return response(400, null, "Full name cannot contain numbers", res);
+            };
+
+            //memeriksa username tidak boleh sama dengan yang lainnya 
+            const existingUsers = await users.findOne({
+                where: {username}
+            });
+            // console.log(existingUsers)
+            if (existingUsers !== null) {
+                return response(400, null, "Username already exists", res);
+            }
             
             const newUsers = await users.create ({
                 username,
@@ -116,6 +131,11 @@ module.exports = {
                 const hashedPassword = await bcrypt.hash(password, 10);
                 req.body.password = hashedPassword;
             }
+
+             // Memeriksa apakah full_name mengandung angka
+            if (/\d/.test(full_name)) {
+                return response(400, null, "Full name cannot contain numbers", res);
+            };
             
             await users.update(req.body, {
                 where: {
@@ -161,6 +181,35 @@ module.exports = {
             console.log(error);
             return response(400, null, "Internal Server Error", res);
         }
+    },
+
+    usersGetBytoken: async (req, res) => {
+        const token = req.params.token;
+
+        if (!token) {
+            return response(401, null, "Token Not Found", res);
+        }
+
+        // verifikasi jwt authentikasi pengguna cek token aktif atau tidak
+        jwt.verify(token, process.env.JWT_SECRET, async(err, decodedUser) => {
+            if (err) {
+                return response(403, null, "Token is Invalid or Expired", res);
+            }
+            console.log(decodedUser)
+
+            try {
+                const user = await users.findByPk(decodedUser.id.id);
+
+                if (!user || user.length === 0) {
+                    return response(404, null, "Users Not Found", res);
+                }    
+
+                response (200, user, "Succes get data users", res);
+            } catch (error) {
+                console.log(error);
+                return response(400, null, "Internal Server Error", res);
+            }
+        })
     }
 }
 

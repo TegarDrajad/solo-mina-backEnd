@@ -18,6 +18,9 @@ router.get('/:id', authMiddleware, usersController.usersById)
 // route to get all data with paginated 
 router.get('/pages/page', authMiddleware, usersController.usersGetAllPaginated)
 
+// route to get users by token
+router.get('/user/profile/:token', authMiddleware, usersController.usersGetBytoken);
+
 // route to Update data users
 router.put('/:id', authMiddleware, usersController.usersUpdate)
 

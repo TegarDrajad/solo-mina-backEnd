@@ -7,9 +7,7 @@ const authMiddleware = require('../middleware/usersMiddleware');
 // route login users
 router.post('/login', authController.login);
 
-// route show user by token
-// router.get('/profile', authMiddleware, (req, res) => {
-//     res.json(req.users);
-// });
+// route to update new password in forgot paswword
+router.put('/forgotPassword', authController.forgotPassword);
 
 module.exports = router
